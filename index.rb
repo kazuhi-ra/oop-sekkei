@@ -19,3 +19,17 @@ class Gear
 end
 
 p Gear.new(52, 11, 26, 1.5).gear_inches
+
+class ObscuringReferences
+  attr_reader :data
+  def initialize(data)
+    @data = data
+  end
+
+  def diameters
+    data.collect {|cell|
+      cell[0] + (cell[1] * 2)}
+  end
+end
+
+p ObscuringReferences.new([[10, 100], [50, 500]]).diameters
