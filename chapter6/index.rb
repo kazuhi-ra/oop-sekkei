@@ -1,4 +1,8 @@
 class Bicycle
+
+end
+
+class RoadBike
   attr_reader :style, :size, :tape_color,
             :front_shock, :rear_shock
   def initialize(args)
@@ -26,13 +30,29 @@ class Bicycle
   end
 end
 
-bike = Bicycle.new(
-  style: :mountain,
+class MountainBike < Bicycle
+  attr_reader :front_shock, :rear_shock
+
+  def initialize(args)
+    @front_shock = args[:front_shock]
+    @rear_shock = args[:rear_shock]
+    super(args)
+  end
+
+  def spares
+    super.merge(rear_shock: rear_shock)
+  end
+end
+
+p RoadBike.new(
   size: 'S',
   front_shock: 'Manitou',
-  rear_shock: 'Fox'
-)
+  rear_shock: 'Fox',
+).spares
 
-p bike.size
-p bike.spares
 
+p MountainBike.new(
+  size: 'M',
+  front_shock: 'Manitou',
+  rear_shock: 'Fox',
+).spares
