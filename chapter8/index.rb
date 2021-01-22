@@ -1,8 +1,20 @@
 class Bicycle
-  attr_reader :size, :chain, :tire_size
+  attr_reader :size, :parts
 
-  def initialize(args={})
+  def initialize(args = {})
     @size = args[:size]
+    @parts = args[:parts]
+  end
+
+  def spares
+    parts.spares
+  end
+end
+
+class Parts
+  attr_reader :chain, :tire_size
+
+  def initialize(args = {})
     @chain = args[:chain] || default_chain
     @tire_size = args[:tire_size] || default_tire_size
 
@@ -14,9 +26,9 @@ class Bicycle
   end
 
   def default_chain
-    '10-speed'
+    "10-speed"
   end
-  
+
   def default_tire_size
     raise NotImplementedError
   end
@@ -33,7 +45,7 @@ class Bicycle
   end
 end
 
-class RoadBike < Bicycle
+class RoadBikeParts < Parts
   attr_reader :tape_color
 
   def post_initialize(args)
@@ -45,11 +57,11 @@ class RoadBike < Bicycle
   end
 
   def default_tire_size
-    '23'
+    "23"
   end
 end
 
-class MountainBike < Bicycle
+class MountainBikeParts < Parts
   attr_reader :front_shock, :rear_shock
 
   def post_initialize(args)
@@ -58,7 +70,7 @@ class MountainBike < Bicycle
   end
 
   def default_tire_size
-    '2.1'
+    "2.1"
   end
 
   def local_spares
@@ -66,14 +78,16 @@ class MountainBike < Bicycle
   end
 end
 
-p RoadBike.new(
-  size: 'S',
-  tape_color: 'red',
-).spares
+rbp = RoadBikeParts.new(
+  tape_color: "red",
+)
+mbp = MountainBikeParts.new(
+  front_shock: nil,
+  rear_shock: nil,
+)
 
-
-p MountainBike.new(
-  size: 'M',
-  front_shock: 'Manitou',
-  rear_shock: 'Fox',
-).spares
+road_bike = Bicycle.new(
+  size: "23",
+  parts: rbp,
+)
+p road_bike.spares
