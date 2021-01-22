@@ -1,4 +1,5 @@
 require "forwardable"
+require "ostruct"
 
 class Bicycle
   attr_reader :size, :parts
@@ -25,30 +26,25 @@ class Parts
   end
 
   def spares
-    parts.select { |part| part.needs_spare }
-  end
-end
-
-class Part
-  attr_reader :name, :description, :needs_spare
-
-  def initialize(args)
-    @name = args[:name]
-    @description = args[:description]
-    @needs_spare = args.fetch(:needs_spare, true)
+    # parts.select { |part| part.needs_spare }
+    select { |part| part.needs_spare }
   end
 end
 
 module PartsFactory
-  def self.build(config, part_class = Part, parts_class = Parts)
+  def self.build(config, parts_class = Parts)
     parts_class.new(
       config.collect { |part_config|
-        part_class.new(
-          name: part_config[0],
-          description: part_config[1],
-          needs_spare: part_config.fetch(2, true),
-        )
+        create_part(part_config)
       }
+    )
+  end
+
+  def self.create_part(part_config)
+    OpenStruct.new(
+      name: part_config[0],
+      description: part_config[1],
+      needs_spare: part_config.fetch(2, true),
     )
   end
 end
@@ -60,4 +56,7 @@ mountain_config = [
   ["rear_shock", "Fox"],
 ]
 
-p road_parts = PartsFactory.build(mountain_config)
+road_parts = PartsFactory.build(mountain_config)
+road_bike = Bicycle.new(size: "23", parts: road_parts)
+
+puts road_bike.spares
