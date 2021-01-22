@@ -1,4 +1,4 @@
-require 'forwardable'
+require "forwardable"
 
 class Bicycle
   attr_reader :size, :parts
@@ -25,28 +25,39 @@ class Parts
   end
 
   def spares
-    parts.select { |part| part.need_spare }
+    parts.select { |part| part.needs_spare }
   end
 end
 
 class Part
-  attr_reader :name, :description, :need_spare
+  attr_reader :name, :description, :needs_spare
 
   def initialize(args)
     @name = args[:name]
     @description = args[:description]
-    @need_spare = args.fetch(:need_spare, true)
+    @needs_spare = args.fetch(:needs_spare, true)
   end
 end
 
-chain = Part.new(name: "chain", description: "10-speed")
-road_tire = Part.new(name: "tire_size", description: "23")
-tape = Part.new(name: "tape", description: "red")
+module PartsFactory
+  def self.build(config, part_class = Part, parts_class = Parts)
+    parts_class.new(
+      config.collect { |part_config|
+        part_class.new(
+          name: part_config[0],
+          description: part_config[1],
+          needs_spare: part_config.fetch(2, true),
+        )
+      }
+    )
+  end
+end
 
-road_bike_parts = Parts.new([chain, road_tire, tape])
+mountain_config = [
+  ["chain", "10-speed"],
+  ["tire_size", "2.1"],
+  ["front_shock", "Manitou", false],
+  ["rear_shock", "Fox"],
+]
 
-road_bike = Bicycle.new(
-  size: "23",
-  parts: road_bike_parts,
-)
-puts road_bike.parts.length
+p road_parts = PartsFactory.build(mountain_config)
